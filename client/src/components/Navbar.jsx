@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 
 const links = [
   { to: '/', label: 'Home' },
@@ -13,6 +14,7 @@ const links = [
 export default function Navbar() {
   const { pathname } = useLocation();
   const { cart } = useCart();
+  const { theme, toggle } = useTheme();
   const isAdmin = localStorage.getItem('yoda_admin') === '1';
   const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
 
@@ -38,6 +40,9 @@ export default function Navbar() {
           Admin
         </Link>
       )}
+      <button className="theme-toggle" onClick={toggle} title="Toggle theme">
+        {theme === 'dark' ? '🖥️' : '🌙'}
+      </button>
     </nav>
   );
 }

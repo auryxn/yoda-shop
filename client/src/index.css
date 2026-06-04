@@ -110,6 +110,24 @@ body::before {
   z-index: 100;
 }
 
+.theme-toggle {
+  background: none;
+  border: 1px solid rgba(212,160,23,0.3);
+  color: #d4a017;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.theme-toggle:hover {
+  border-color: #d4a017;
+  background: rgba(212,160,23,0.1);
+}
+
 .nav-link {
   color: rgba(212, 197, 169, 0.5);
   text-decoration: none;
@@ -488,4 +506,160 @@ body::before {
   .home-content {
     gap: 16px;
   }
+}
+
+/* ═══════════════════════════════════
+   🖥️  WINDOWS XP THEME
+   ═══════════════════════════════════ */
+[data-theme="xp"] {
+  --xp-nav-grad: linear-gradient(180deg, #003366 0%, #004080 50%, #002244 100%);
+  --xp-nav-border: #c0c0c0;
+  --xp-h1-color: #ffffff;
+  --xp-h1-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.3);
+  --xp-btn-grad: linear-gradient(180deg, #39b54a 0%, #21a035 50%, #1d8a2d 100%);
+  --xp-btn-border: #0f5c1a;
+  --xp-btn-shadow: 4px 4px 0 #0a3f12, inset 0 -2px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2);
+  --xp-panel-bg: rgba(0, 0, 0, 0.4);
+  --xp-panel-border: none;
+  --xp-text-color: #ffffff;
+  --xp-accent: #00aaff;
+  --xp-dim: rgba(255,255,255,0.5);
+  --xp-green: #39b54a;
+  --xp-footer-bg: linear-gradient(180deg, #003366 0%, #001a33 100%);
+  --xp-body-bg: url('/assets/bliss.jpg') center/cover fixed no-repeat;
+  --xp-body-bg-color: transparent;
+}
+
+[data-theme="xp"] body {
+  background: var(--xp-body-bg) !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  color: var(--xp-text-color) !important;
+}
+
+[data-theme="xp"] body::before,
+[data-theme="xp"] body::after {
+  display: none !important;
+}
+
+[data-theme="xp"] .navbar {
+  background: var(--xp-nav-grad) !important;
+  border-bottom: 2px solid var(--xp-nav-border) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="xp"] .nav-link {
+  color: var(--xp-text-color) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+}
+
+[data-theme="xp"] .nav-link:hover,
+[data-theme="xp"] .nav-link.active {
+  background: rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+  text-shadow: 0 0 4px rgba(255,255,255,0.3) !important;
+}
+
+[data-theme="xp"] .app h1 {
+  color: var(--xp-h1-color) !important;
+  text-shadow: var(--xp-h1-shadow) !important;
+  animation: none !important;
+}
+
+[data-theme="xp"] .start-btn {
+  background: var(--xp-btn-grad) !important;
+  border: 3px solid var(--xp-btn-border) !important;
+  box-shadow: var(--xp-btn-shadow) !important;
+  color: #fff !important;
+  text-shadow: none !important;
+}
+
+[data-theme="xp"] .start-btn:hover {
+  filter: brightness(1.1) !important;
+}
+
+[data-theme="xp"] .xp-panel {
+  background: var(--xp-panel-bg) !important;
+  backdrop-filter: blur(4px) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="xp"] .xp-text {
+  color: var(--xp-text-color) !important;
+}
+
+[data-theme="xp"] .footer {
+  background: var(--xp-footer-bg) !important;
+  border-top: 1px solid var(--xp-nav-border) !important;
+}
+
+/* Navbar cart badge in XP */
+[data-theme="xp"] .cart-badge {
+  background: #ff6b6b !important;
+  box-shadow: none !important;
+}
+
+/* Product cards in XP */
+[data-theme="xp"] .product-card {
+  background: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(4px) !important;
+  border: none !important;
+}
+
+[data-theme="xp"] .product-card:hover {
+  background: rgba(0, 0, 0, 0.45) !important;
+  box-shadow: none !important;
+}
+
+[data-theme="xp"] .product-name {
+  color: #ddd !important;
+}
+
+/* Product page in XP */
+[data-theme="xp"] .product-layout {
+  background: rgba(0,0,0,0.3) !important;
+  backdrop-filter: blur(4px) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="xp"] .product-title {
+  color: #ddd !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+[data-theme="xp"] .product-price {
+  color: var(--xp-green) !important;
+}
+
+[data-theme="xp"] .add-to-cart-btn {
+  background: var(--xp-btn-grad) !important;
+  border: 3px solid var(--xp-btn-border) !important;
+  box-shadow: var(--xp-btn-shadow) !important;
+}
+
+[data-theme="xp"] .back-btn {
+  border: 2px solid rgba(255,255,255,0.2) !important;
+  color: rgba(255,255,255,0.6) !important;
+}
+
+[data-theme="xp"] .back-btn:hover {
+  border-color: var(--xp-accent) !important;
+  color: var(--xp-accent) !important;
+}
+
+/* Scrollbar XP */
+[data-theme="xp"] ::-webkit-scrollbar {
+  width: 14px !important;
+}
+
+[data-theme="xp"] ::-webkit-scrollbar-track {
+  background: #c0c0c0 !important;
+}
+
+[data-theme="xp"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #fff 0%, #c0c0c0 100%) !important;
+  border: 2px solid #808080 !important;
 }
