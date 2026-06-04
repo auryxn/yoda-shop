@@ -15,7 +15,7 @@ export default function Navbar() {
   const { pathname } = useLocation();
   const { cart } = useCart();
   const { theme, toggle } = useTheme();
-  const isAdmin = localStorage.getItem('yoda_admin') === '1';
+  const isAdmin = Boolean(localStorage.getItem('yoda_admin_token'));
   const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
 
   return (
@@ -40,7 +40,7 @@ export default function Navbar() {
           Admin
         </Link>
       )}
-      <button className="theme-toggle" onClick={toggle} title="Toggle theme">
+      <button className="theme-toggle" onClick={toggle} title="Toggle theme" aria-label="Toggle theme">
         {theme === 'dark' ? '🖥️' : '🌙'}
       </button>
     </nav>

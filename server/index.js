@@ -2,14 +2,63 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
+const Stripe = require('stripe');
+const { requireAdminAuth, signAdminToken } = require('./middleware/auth');
+const { validateBody, schemas } = require('./middleware/validation');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
+const requiredEnvVars = ['STRIPE_SECRET_KEY', 'ADMIN_PASSWORD_HASH', 'JWT_SECRET', 'CORS_ORIGINS', 'CLIENT_URL'];
+const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
+if (missingEnvVars.length > 0) {
+  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const allowedOrigins = process.env.CORS_ORIGINS.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS origin denied'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan('tiny', {
+  skip: (req) => req.path === '/api/admin/login' || req.path === '/api/create-checkout',
+}));
+
+app.use(rateLimit({
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  max: Number(process.env.RATE_LIMIT_MAX || 300),
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
+
+const adminLoginLimiter = rateLimit({
+  windowMs: Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
+  max: Number(process.env.LOGIN_RATE_LIMIT_MAX || 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+function requireCsrf(req, res, next) {
+  const token = req.headers['x-csrf-token'];
+  if (!token || token !== req.admin?.csrf) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+  return next();
+}
 
 // Serve static frontend in production
 if (process.env.NODE_ENV === 'production') {
@@ -40,13 +89,13 @@ app.get('/api/products/:id', (req, res) => {
   res.json({ product });
 });
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', requireAdminAuth, requireCsrf, validateBody(schemas.productSchema), (req, res) => {
   const product = { id: nextProductId++, ...req.body };
   products.push(product);
   res.status(201).json({ product });
 });
 
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', requireAdminAuth, requireCsrf, validateBody(schemas.productUpdateSchema), (req, res) => {
   const id = parseInt(req.params.id, 10);
   const idx = products.findIndex((p) => p.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Product not found' });
@@ -54,7 +103,7 @@ app.put('/api/products/:id', (req, res) => {
   res.json({ product: products[idx] });
 });
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', requireAdminAuth, requireCsrf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const idx = products.findIndex((p) => p.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Product not found' });
@@ -77,13 +126,13 @@ app.get('/api/categories', (_, res) => {
   res.json({ categories });
 });
 
-app.post('/api/categories', (req, res) => {
+app.post('/api/categories', requireAdminAuth, requireCsrf, validateBody(schemas.categorySchema), (req, res) => {
   const cat = { id: nextCategoryId++, name: req.body.name };
   categories.push(cat);
   res.status(201).json({ category: cat });
 });
 
-app.put('/api/categories/:id', (req, res) => {
+app.put('/api/categories/:id', requireAdminAuth, requireCsrf, validateBody(schemas.categorySchema), (req, res) => {
   const id = parseInt(req.params.id, 10);
   const idx = categories.findIndex((c) => c.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Category not found' });
@@ -91,7 +140,7 @@ app.put('/api/categories/:id', (req, res) => {
   res.json({ category: categories[idx] });
 });
 
-app.delete('/api/categories/:id', (req, res) => {
+app.delete('/api/categories/:id', requireAdminAuth, requireCsrf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const idx = categories.findIndex((c) => c.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Category not found' });
@@ -110,11 +159,21 @@ let orders = [
   { id: 'ORD-007', customer: 'Eve Adams', items: 'Silver ×2 + Black ×2', total: 174.96, payment: 'Credit Card', status: 'New', address: '147 Birch Ct, Austin, TX 73301', date: '2026-06-03' },
 ];
 
-app.get('/api/orders', (_, res) => {
-  res.json({ orders });
+app.get('/api/orders', requireAdminAuth, (_, res) => {
+  const safeOrders = orders.map((order) => ({
+    id: order.id,
+    customer: order.customer,
+    items: order.items,
+    total: order.total,
+    payment: order.payment,
+    address: order.address,
+    status: order.status,
+    date: order.date,
+  }));
+  res.json({ orders: safeOrders });
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+app.put('/api/orders/:id/status', requireAdminAuth, requireCsrf, validateBody(schemas.orderStatusSchema), (req, res) => {
   const order = orders.find((o) => o.id === req.params.id);
   if (!order) return res.status(404).json({ error: 'Order not found' });
   order.status = req.body.status;
@@ -130,31 +189,31 @@ let discounts = [
   { id: 4, code: 'VIP30', discount: 30, active: true },
 ];
 
-app.get('/api/discounts', (_, res) => {
+app.get('/api/discounts', requireAdminAuth, (_, res) => {
   res.json({ discounts });
 });
 
-app.post('/api/discounts', (req, res) => {
+app.post('/api/discounts', requireAdminAuth, requireCsrf, validateBody(schemas.discountCreateSchema), (req, res) => {
   const d = { id: nextDiscountId++, code: req.body.code, discount: req.body.discount, active: req.body.active !== false };
   discounts.push(d);
   res.status(201).json({ discount: d });
 });
 
-app.put('/api/discounts/:id/toggle', (req, res) => {
+app.put('/api/discounts/:id/toggle', requireAdminAuth, requireCsrf, (req, res) => {
   const d = discounts.find(d => d.id === parseInt(req.params.id, 10));
   if (!d) return res.status(404).json({ error: 'Not found' });
   d.active = !d.active;
   res.json({ discount: d });
 });
 
-app.post('/api/discounts/check', (req, res) => {
+app.post('/api/discounts/check', validateBody(schemas.discountCheckSchema), (req, res) => {
   const { code } = req.body;
   const d = discounts.find(d => d.code.toUpperCase() === (code || '').toUpperCase() && d.active);
   if (!d) return res.json({ valid: false });
   res.json({ valid: true, discount: d.discount, code: d.code });
 });
 
-app.delete('/api/discounts/:id', (req, res) => {
+app.delete('/api/discounts/:id', requireAdminAuth, requireCsrf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const idx = discounts.findIndex((d) => d.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Discount not found' });
@@ -163,7 +222,7 @@ app.delete('/api/discounts/:id', (req, res) => {
 });
 
 // Dashboard stats
-app.get('/api/dashboard', (_, res) => {
+app.get('/api/dashboard', requireAdminAuth, (_, res) => {
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const totalOrders = orders.length;
   const newOrders = orders.filter((o) => o.status === 'New').length;
@@ -172,7 +231,7 @@ app.get('/api/dashboard', (_, res) => {
   res.json({ totalRevenue, totalOrders, newOrders, lowStock, avgOrder });
 });
 
-app.get('/api/analytics', (_, res) => {
+app.get('/api/analytics', requireAdminAuth, (_, res) => {
   // Revenue by status
   const paidOrders = orders.filter(o => o.status === 'Paid' || o.status === 'Shipped' || o.status === 'Delivered');
   const revenueByStatus = {
@@ -222,12 +281,15 @@ app.get('/api/analytics', (_, res) => {
 });
 
 // ─── Admin login ───
-app.post('/api/admin/login', (req, res) => {
-  if (req.body.password === 'admin') {
-    res.json({ ok: true });
-  } else {
-    res.status(401).json({ ok: false, error: 'Wrong password' });
+app.post('/api/admin/login', adminLoginLimiter, validateBody(schemas.loginSchema), async (req, res) => {
+  const isValid = await bcrypt.compare(req.body.password, process.env.ADMIN_PASSWORD_HASH);
+  if (!isValid) {
+    return res.status(401).json({ ok: false, error: 'Wrong password' });
   }
+
+  const csrfToken = crypto.randomBytes(32).toString('hex');
+  const token = signAdminToken(csrfToken);
+  return res.json({ ok: true, token, csrfToken });
 });
 
 app.get('/api/health', (_, res) => {
@@ -257,7 +319,7 @@ app.get('/api/banner', (_, res) => {
   res.json({ banner: siteBanner });
 });
 
-app.post('/api/banner', (req, res) => {
+app.post('/api/banner', requireAdminAuth, requireCsrf, validateBody(schemas.bannerSchema), (req, res) => {
   siteBanner = { ...siteBanner, ...req.body };
   res.json({ banner: siteBanner });
 });
@@ -266,7 +328,7 @@ app.get('/api/site-texts', (_, res) => {
   res.json({ texts: siteTexts });
 });
 
-app.post('/api/site-texts', (req, res) => {
+app.post('/api/site-texts', requireAdminAuth, requireCsrf, validateBody(schemas.siteTextsSchema), (req, res) => {
   siteTexts = { ...siteTexts, ...req.body };
   res.json({ texts: siteTexts });
 });
@@ -295,7 +357,7 @@ app.get('/api/settings', (_, res) => {
   res.json({ settings: siteSettings });
 });
 
-app.post('/api/settings', (req, res) => {
+app.post('/api/settings', requireAdminAuth, requireCsrf, validateBody(schemas.settingsSchema), (req, res) => {
   siteSettings = { ...siteSettings, ...req.body };
   res.json({ settings: siteSettings });
 });
@@ -303,7 +365,7 @@ app.post('/api/settings', (req, res) => {
 // ─── Stripe Checkout ───
 let nextOrderId = 10;
 
-app.post('/api/create-checkout', async (req, res) => {
+app.post('/api/create-checkout', validateBody(schemas.checkoutSchema), async (req, res) => {
   try {
     const { items, coupon, customer } = req.body;
 
@@ -321,7 +383,7 @@ app.post('/api/create-checkout', async (req, res) => {
     }));
 
     // Apply coupon discount if provided
-    let discounts = [];
+    let stripeDiscounts = [];
     if (coupon) {
       const found = discounts.find(d => d.code.toUpperCase() === coupon.toUpperCase() && d.active);
       if (found) {
@@ -331,7 +393,7 @@ app.post('/api/create-checkout', async (req, res) => {
             duration: 'once',
             name: found.code,
           });
-          discounts.push({ coupon: couponObj.id });
+          stripeDiscounts.push({ coupon: couponObj.id });
         } catch (_) {}
       }
     }
@@ -340,9 +402,9 @@ app.post('/api/create-checkout', async (req, res) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      discounts: discounts.length > 0 ? discounts : undefined,
-      success_url: `${req.headers.origin || 'http://localhost:5173'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin || 'http://localhost:5173'}/checkout/cancel`,
+      discounts: stripeDiscounts.length > 0 ? stripeDiscounts : undefined,
+      success_url: `${process.env.CLIENT_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/checkout/cancel`,
       metadata: {
         customer_name: customer?.name || 'Guest',
         customer_address: customer?.address || '',
@@ -356,7 +418,7 @@ app.post('/api/create-checkout', async (req, res) => {
   }
 });
 
-app.post('/api/checkout/verify', async (req, res) => {
+app.post('/api/checkout/verify', validateBody(schemas.checkoutVerifySchema), async (req, res) => {
   try {
     const { sessionId } = req.body;
     const session = await stripe.checkout.sessions.retrieve(sessionId);

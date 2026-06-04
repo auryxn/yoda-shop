@@ -1,9 +1,30 @@
 import { useState, useEffect } from 'react';
 import './Admin.css';
 
+function adminFetch(url, options = {}) {
+  const token = localStorage.getItem('yoda_admin_token');
+  const csrfToken = localStorage.getItem('yoda_csrf_token');
+  const method = (options.method || 'GET').toUpperCase();
+  const headers = { ...(options.headers || {}) };
+
+  if (token) {
+    headers.Authorization = 'Bearer ' + token;
+  }
+
+  const isStateChanging = method === 'POST' || method === 'PUT' || method === 'DELETE';
+  const requiresCsrf = isStateChanging && url !== '/api/admin/login';
+
+  if (requiresCsrf) {
+    if (!csrfToken) return Promise.reject(new Error('Missing CSRF token'));
+    headers['X-CSRF-Token'] = csrfToken;
+  }
+
+  return fetch(url, { ...options, headers });
+}
+
 export default function Admin() {
   const [password, setPassword] = useState('');
-  const [loggedIn, setLoggedIn] = useState(() => localStorage.getItem('yoda_admin') === '1');
+  const [loggedIn, setLoggedIn] = useState(() => Boolean(localStorage.getItem('yoda_admin_token')));
   const [error, setError] = useState('');
   const [page, setPage] = useState('dashboard');
 
@@ -32,18 +53,18 @@ export default function Admin() {
 
   useEffect(() => {
     if (loggedIn) {
-      fetch('/api/dashboard').then(r => r.json()).then(setDashboard).catch(() => {});
+      adminFetch('/api/dashboard').then(r => r.json()).then(setDashboard).catch(() => {});
       loadProducts();
       loadCategories();
-      fetch('/api/orders').then(r => r.json()).then(d => setOrders(d.orders)).catch(() => {});
-      fetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts)).catch(() => {});
+      adminFetch('/api/orders').then(r => r.json()).then(d => setOrders(d.orders)).catch(() => {});
+      adminFetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts)).catch(() => {});
     }
   }, [loggedIn]);
 
   const loadProducts = () =>
-    fetch('/api/products').then(r => r.json()).then(d => setProducts(d.products));
+    adminFetch('/api/products').then(r => r.json()).then(d => setProducts(d.products));
   const loadCategories = () =>
-    fetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories));
+    adminFetch('/api/categories').then(r => r.json()).then(d => setCategories(d.categories));
 
   function openAdd() {
     setForm({ name: '', description: '', price: '', oldPrice: '', category: '', stock: '', sku: '', status: 'Active', image: '/assets/template.png' });
@@ -66,19 +87,19 @@ export default function Admin() {
     };
     const url = editId ? `/api/products/${editId}` : '/api/products';
     const method = editId ? 'PUT' : 'POST';
-    fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    adminFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       .then(() => { setShowModal(false); loadProducts(); });
   }
   function deleteProduct(id) {
     if (!confirm('Delete this product?')) return;
-    fetch(`/api/products/${id}`, { method: 'DELETE' }).then(() => loadProducts());
+    adminFetch(`/api/products/${id}`, { method: 'DELETE' }).then(() => loadProducts());
   }
 
   function saveCategory() {
     if (!catName.trim()) return;
     const url = catEditId ? `/api/categories/${catEditId}` : '/api/categories';
     const method = catEditId ? 'PUT' : 'POST';
-    fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: catName }) })
+    adminFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: catName }) })
       .then(() => { setCatModal(false); loadCategories(); });
   }
 
@@ -88,18 +109,18 @@ export default function Admin() {
   }
   function saveDiscount() {
     if (!discForm.code.trim()) return;
-    fetch('/api/discounts', {
+    adminFetch('/api/discounts', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: discForm.code, discount: parseFloat(discForm.discount) || 0 }),
     }).then(() => {
       setDiscModal(false);
-      fetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts));
+      adminFetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts));
     });
   }
   function deleteDiscount(id) {
     if (!confirm('Delete this discount?')) return;
-    fetch(`/api/discounts/${id}`, { method: 'DELETE' }).then(() =>
-      fetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts))
+    adminFetch(`/api/discounts/${id}`, { method: 'DELETE' }).then(() =>
+      adminFetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts))
     );
   }
 
@@ -119,10 +140,13 @@ export default function Admin() {
           {error && <p style={{ color: '#ff6b6b', fontSize: '9px', marginBottom: '12px', textAlign: 'center' }}>{error}</p>}
           <button className="start-btn" style={{ fontSize: '12px', padding: '12px 24px', width: '100%' }}
             onClick={() => {
-              fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) })
+              adminFetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) })
                 .then(r => r.json()).then(data => {
-                  if (data.ok) { localStorage.setItem('yoda_admin', '1'); setLoggedIn(true); }
-                  else setError('Wrong password');
+                  if (data.ok && data.token) {
+                    localStorage.setItem('yoda_admin_token', data.token);
+                    localStorage.setItem('yoda_csrf_token', data.csrfToken || '');
+                    setLoggedIn(true);
+                  } else setError('Wrong password');
                 }).catch(() => setError('Server error'));
             }}>Enter</button>
         </div>
@@ -168,7 +192,7 @@ export default function Admin() {
               onEdit={(c) => { setCatEditId(c.id); setCatName(c.name); setCatModal(true); }}
               onDelete={(id) => {
                 if (!confirm('Delete this category?')) return;
-                fetch(`/api/categories/${id}`, { method: 'DELETE' }).then(() => loadCategories());
+                adminFetch(`/api/categories/${id}`, { method: 'DELETE' }).then(() => loadCategories());
               }}
             />
           )}
@@ -176,16 +200,16 @@ export default function Admin() {
             <OrdersView
               orders={orders}
               onStatusChange={(id, status) => {
-                fetch(`/api/orders/${id}/status`, {
+                adminFetch(`/api/orders/${id}/status`, {
                   method: 'PUT', headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ status }),
-                }).then(() => fetch('/api/orders').then(r => r.json()).then(d => setOrders(d.orders)));
+                }).then(() => adminFetch('/api/orders').then(r => r.json()).then(d => setOrders(d.orders)));
               }}
             />
           )}
           {page === 'inventory' && (
             <InventoryView products={products} onStockChange={(id, stock) => {
-              fetch(`/api/products/${id}`, {
+              adminFetch(`/api/products/${id}`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ stock }),
               }).then(() => loadProducts());
@@ -201,8 +225,8 @@ export default function Admin() {
               onAdd={openDiscountAdd}
               onDelete={deleteDiscount}
               onToggle={(id) => {
-                fetch(`/api/discounts/${id}/toggle`, { method: 'PUT' })
-                  .then(() => fetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts)));
+                adminFetch(`/api/discounts/${id}/toggle`, { method: 'PUT' })
+                  .then(() => adminFetch('/api/discounts').then(r => r.json()).then(d => setDiscounts(d.discounts)));
               }}
             />
           )}
@@ -499,12 +523,12 @@ function BannersView() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch('/api/banner').then(r => r.json()).then(d => { setBanner(d.banner); setLoaded(true); }).catch(() => {});
+    adminFetch('/api/banner').then(r => r.json()).then(d => { setBanner(d.banner); setLoaded(true); }).catch(() => {});
   }, []);
 
   function save() {
     setSaving(true);
-    fetch('/api/banner', {
+    adminFetch('/api/banner', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(banner),
     }).then(() => { setSaving(false); alert('Banner saved!'); });
   }
@@ -550,12 +574,12 @@ function ContentView() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch('/api/site-texts').then(r => r.json()).then(d => { setTexts(d.texts); setLoaded(true); }).catch(() => {});
+    adminFetch('/api/site-texts').then(r => r.json()).then(d => { setTexts(d.texts); setLoaded(true); }).catch(() => {});
   }, []);
 
   function save() {
     setSaving(true);
-    fetch('/api/site-texts', {
+    adminFetch('/api/site-texts', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(texts),
     }).then(() => { setSaving(false); alert('Content saved!'); });
   }
@@ -602,7 +626,7 @@ function AnalyticsView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/analytics').then(r => r.json()).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    adminFetch('/api/analytics').then(r => r.json()).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   if (loading) return <p className="dim" style={{ fontSize: '10px' }}>Loading analytics...</p>;
@@ -690,7 +714,7 @@ function SettingsView() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings').then(r => r.json()).then(d => { setSettings(d.settings); setLoading(false); }).catch(() => setLoading(false));
+    adminFetch('/api/settings').then(r => r.json()).then(d => { setSettings(d.settings); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   function update(key, value) {
@@ -699,7 +723,7 @@ function SettingsView() {
 
   function save() {
     setSaving(true);
-    fetch('/api/settings', {
+    adminFetch('/api/settings', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings),
     }).then(() => { setSaving(false); alert('Settings saved!'); }).catch(() => setSaving(false));
   }
