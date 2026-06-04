@@ -1,3 +1,5 @@
+/* ─── Admin Page — Dark Fantasy ─── */
+
 .admin-page {
   min-height: 100vh;
   width: 100%;
@@ -14,38 +16,41 @@
   width: 100%;
   max-width: 1200px;
   min-height: 80vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(10, 5, 5, 0.85);
   backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 160, 23, 0.2);
+  box-shadow: 0 0 20px rgba(139, 0, 0, 0.15), inset 0 0 30px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .admin-sidebar {
   width: 200px;
-  background: rgba(0, 0, 0, 0.3);
+  background: linear-gradient(180deg, #1a0505 0%, #0d0202 50%, #050101 100%);
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(212, 160, 23, 0.1);
   flex-shrink: 0;
 }
 
 .sidebar-title {
   font-size: 10px;
-  color: #ffcc00;
+  color: #d4a017;
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(212, 160, 23, 0.15);
+  text-shadow: 0 0 6px rgba(212, 160, 23, 0.2);
 }
 
 .sidebar-link {
   display: block;
   padding: 10px 12px;
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(212, 197, 169, 0.4);
   cursor: pointer;
   border-radius: 4px;
   transition: background 0.15s, color 0.15s;
@@ -53,13 +58,14 @@
 }
 
 .sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
+  background: rgba(139, 0, 0, 0.2);
+  color: #d4c5a9;
 }
 
 .sidebar-link.active {
-  background: rgba(255, 204, 0, 0.1);
-  color: #ffcc00;
+  background: rgba(139, 0, 0, 0.35);
+  color: #d4a017;
+  border: 1px solid rgba(212, 160, 23, 0.2);
 }
 
 .admin-content {
@@ -78,8 +84,8 @@
 }
 
 .dash-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(50, 10, 10, 0.4);
+  border: 1px solid rgba(212, 160, 23, 0.15);
   border-radius: 8px;
   padding: 24px;
   display: flex;
@@ -89,21 +95,22 @@
 }
 
 .dash-card:hover {
-  border-color: rgba(255, 204, 0, 0.3);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 160, 23, 0.4);
+  background: rgba(80, 15, 15, 0.4);
+  box-shadow: 0 0 12px rgba(139, 0, 0, 0.2);
 }
 
 .dash-card.warn {
-  border-color: rgba(255, 150, 50, 0.2);
+  border-color: rgba(212, 160, 23, 0.2);
 }
 
 .dash-card.warn:hover {
-  border-color: rgba(255, 150, 50, 0.5);
+  border-color: rgba(212, 160, 23, 0.5);
 }
 
 .dash-icon {
   font-size: 2rem;
-  filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.3));
+  filter: drop-shadow(0 0 6px rgba(212, 160, 23, 0.2));
 }
 
 .dash-info {
@@ -115,17 +122,18 @@
 .dash-value {
   font-family: 'Press Start 2P', monospace;
   font-size: 22px;
-  color: #ffcc00;
+  color: #d4a017;
   letter-spacing: 1px;
+  text-shadow: 0 0 6px rgba(212, 160, 23, 0.2);
 }
 
 .dash-card.warn .dash-value {
-  color: #ff9632;
+  color: #d4a017;
 }
 
 .dash-label {
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(212, 197, 169, 0.4);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -149,8 +157,8 @@
 .admin-table thead th {
   text-align: left;
   padding: 14px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid rgba(212, 160, 23, 0.15);
+  color: rgba(212, 197, 169, 0.4);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 9px;
@@ -159,25 +167,25 @@
 
 .admin-table tbody td {
   padding: 14px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  color: #ddd;
+  border-bottom: 1px solid rgba(139, 0, 0, 0.1);
+  color: #d4c5a9;
   white-space: nowrap;
 }
 
 .admin-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(80, 10, 10, 0.2);
 }
 
 .admin-table .dim {
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(212, 197, 169, 0.35);
 }
 
 .admin-table .green {
-  color: #39b54a;
+  color: #d4a017;
 }
 
 .admin-table .old {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(212, 197, 169, 0.3);
   text-decoration: line-through;
 }
 
@@ -187,49 +195,53 @@
 
 /* Status badges */
 .status-active {
-  color: #39b54a;
-  background: rgba(57, 181, 74, 0.1);
+  color: #d4a017;
+  background: rgba(212, 160, 23, 0.1);
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 7px;
+  border: 1px solid rgba(212, 160, 23, 0.2);
 }
 
 .status-hidden {
-  color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.05);
+  color: rgba(212, 197, 169, 0.4);
+  background: rgba(139, 0, 0, 0.1);
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 7px;
+  border: 1px solid rgba(139, 0, 0, 0.2);
 }
 
 /* Action buttons */
 .act-btn {
   background: none;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ddd;
+  border: 1px solid rgba(212, 160, 23, 0.15);
+  color: #d4c5a9;
   padding: 4px 10px;
   cursor: pointer;
   font-family: 'Press Start 2P', monospace;
   font-size: 6px;
   margin-right: 4px;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, color 0.15s;
 }
 
 .act-btn.edit:hover {
-  border-color: #ffcc00;
-  color: #ffcc00;
+  border-color: #d4a017;
+  color: #d4a017;
+  box-shadow: 0 0 6px rgba(212, 160, 23, 0.2);
 }
 
 .act-btn.del:hover {
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  border-color: #8b0000;
+  color: #ff4444;
+  box-shadow: 0 0 6px rgba(139, 0, 0, 0.3);
 }
 
 /* ─── Modal ─── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,22 +250,24 @@
 }
 
 .modal-panel {
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0d0505;
+  border: 1px solid #d4a017;
   border-radius: 8px;
   padding: 32px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 0 30px rgba(139, 0, 0, 0.3), 0 0 60px rgba(212, 160, 23, 0.1);
 }
 
 .modal-title {
   font-family: 'Press Start 2P', monospace;
   font-size: 12px;
-  color: #ffcc00;
+  color: #d4a017;
   margin-bottom: 20px;
   letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(212, 160, 23, 0.2);
 }
 
 .modal-field {
@@ -263,7 +277,7 @@
 .modal-field label {
   display: block;
   font-size: 7px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(212, 197, 169, 0.4);
   margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -285,9 +299,9 @@
 }
 
 .status-select {
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #ddd;
+  background: rgba(5, 2, 2, 0.7);
+  border: 1px solid rgba(212, 160, 23, 0.2);
+  color: #d4c5a9;
   font-family: 'Press Start 2P', monospace;
   font-size: 7px;
   padding: 4px 6px;
@@ -297,8 +311,8 @@
 }
 
 .status-select option {
-  background: #111;
-  color: #ddd;
+  background: #0d0505;
+  color: #d4c5a9;
 }
 
 @keyframes fadeIn {
@@ -324,7 +338,7 @@
     gap: 2px;
     padding: 10px 8px;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(212, 160, 23, 0.1);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }

@@ -1,0 +1,102 @@
+/* ─── Catalog — Dark Fantasy ─── */
+
+.catalog-grid {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  padding: 20px 20px 60px;
+  box-sizing: border-box;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  width: 100%;
+  max-width: 1200px;
+  justify-self: center;
+  align-content: start;
+  min-height: calc(100vh - 60px);
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  text-decoration: none;
+  background: rgba(10, 5, 5, 0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  border-radius: 8px;
+  padding: 0;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(139, 0, 0, 0.1);
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: #d4a017;
+  box-shadow: 0 4px 24px rgba(212, 160, 23, 0.25), 0 0 12px rgba(139, 0, 0, 0.3);
+}
+
+.product-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.product-name {
+  padding: 8px 12px 12px;
+}
+
+.product-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #d4c5a9;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  text-align: center;
+  letter-spacing: 0.5px;
+  word-break: break-word;
+  padding-top: 0;
+  margin: 2px 0 0;
+}
+
+/* ─── Mobile (≤768px) ─── */
+@media (max-width: 768px) {
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 60px 10px 40px;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+  }
+
+  @media (max-width: 420px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .product-card {
+    padding: 0;
+    border-radius: 6px;
+  }
+
+  .product-name {
+    font-size: 9px;
+    padding: 6px 8px 10px;
+    line-height: 1.5;
+  }
+
+  .catalog-screen {
+    gap: 20px;
+    padding: 60px 10px 20px;
+  }
+}

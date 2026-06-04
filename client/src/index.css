@@ -10,15 +10,91 @@ html, body, #root {
   height: 100%;
 }
 
+/* ─── Dark Fantasy Background ─── */
 body {
-  background: url('/assets/bliss.jpg') no-repeat center center fixed;
+  background: url('/assets/dark-fantasy-bg.jpg') center/cover fixed no-repeat;
+  background-attachment: fixed;
   background-size: cover;
   font-family: 'Press Start 2P', monospace;
-  color: #fff;
+  color: #d4c5a9; /* parchment */
   image-rendering: pixelated;
+  position: relative;
+  overflow-x: hidden;
 }
 
-/* ─── Navbar ─── */
+/* ═══ Dark Souls Atmosphere Layers ═══ */
+
+/* Слой: объёмный туман (volumetric fog) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(180,140,100,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 20%, rgba(100,80,130,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 40% at 50% 0%, rgba(200,120,60,0.03) 0%, transparent 40%);
+  animation: fogDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes fogDrift {
+  0% { transform: translateX(0) scale(1); opacity: 0.6; }
+  50% { transform: translateX(-2%) scale(1.02); opacity: 1; }
+  100% { transform: translateX(2%) scale(0.98); opacity: 0.7; }
+}
+
+/* Текстура шума/пергамента */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    ),
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(139, 0, 0, 0.08) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 30%,
+      rgba(75, 0, 130, 0.06) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Dark Fantasy Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0505;
+  border: 1px solid rgba(212, 160, 23, 0.15);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6b0f0f, #8b0000);
+  border: 1px solid rgba(212, 160, 23, 0.4);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #8b0000, #a01010);
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8b0000 #0d0505;
+}
+
+/* ─── Navbar — Dark Fantasy ─── */
 .navbar {
   position: fixed;
   top: 0;
@@ -28,26 +104,34 @@ body {
   justify-content: center;
   gap: 24px;
   padding: 14px 20px;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, #1a0505 0%, #0a0202 100%);
+  border-bottom: 2px solid #6b0f0f;
+  box-shadow: 0 2px 20px rgba(139, 0, 0, 0.3);
   z-index: 100;
 }
 
 .nav-link {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(212, 197, 169, 0.5);
   text-decoration: none;
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  transition: color 0.15s;
+  transition: color 0.2s, text-shadow 0.2s;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: #d4a017;
+  text-shadow: 0 0 8px rgba(212, 160, 23, 0.4);
+}
+
 .nav-link.active {
-  color: #ffcc00;
+  color: #d4a017;
+  background: rgba(139, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 3px;
 }
 
-/* ─── Home ─── */
+/* ─── Home — Dark Fantasy ─── */
 .app {
   height: 100vh;
   width: 100vw;
@@ -55,6 +139,16 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Torch Flicker Animation ─── */
+@keyframes torchFlicker {
+  0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(212,160,23,0.4), 0 0 20px rgba(212,160,23,0.2); }
+  25% { opacity: 0.9; text-shadow: 0 0 15px rgba(212,160,23,0.5), 0 0 30px rgba(212,160,23,0.25); }
+  50% { opacity: 1; text-shadow: 0 0 8px rgba(212,160,23,0.3), 0 0 16px rgba(212,160,23,0.15); }
+  75% { opacity: 0.85; text-shadow: 0 0 20px rgba(212,160,23,0.6), 0 0 40px rgba(212,160,23,0.3); }
 }
 
 .home-content {
@@ -84,40 +178,48 @@ body {
 
 .app h1 {
   font-size: 46px;
-  text-shadow: 4px 4px 0 #003366, 6px 6px 0 rgba(0,0,0,0.3);
-  color: #ffcc00;
+  text-shadow: 0 0 20px rgba(212, 160, 23, 0.5), 0 0 40px rgba(139, 0, 0, 0.3);
+  color: #d4a017;
   letter-spacing: 3px;
   text-align: center;
   line-height: 1.6;
+  animation: torchFlicker 3s ease-in-out infinite;
 }
 
-/* ─── Pixel Start Button ─── */
+/* ─── Pixel Start Button — Dark Fantasy ─── */
 .start-btn {
-  background: #39b54a;
-  border: none;
+  background: linear-gradient(180deg, #2a0505 0%, #1a0202 40%, #0d0000 100%);
+  border: 3px solid #d4a017;
   padding: 24px 54px;
-  color: white;
+  color: #d4a017;
   font-family: 'Press Start 2P', monospace;
   font-size: 24px;
   cursor: pointer;
   box-shadow:
-    6px 6px 0 #0a3f12,
-    -3px -3px 0 #6ee07f,
-    inset -6px -6px 0 #2a8a38,
-    inset 6px 6px 0 #4cd85e;
+    0 0 16px rgba(139, 0, 0, 0.6),
+    0 0 32px rgba(139, 0, 0, 0.3),
+    inset 0 0 16px rgba(139, 0, 0, 0.15);
   text-transform: uppercase;
   letter-spacing: 3px;
   image-rendering: pixelated;
-  transition: transform 0.05s, box-shadow 0.05s;
+  transition: transform 0.05s, box-shadow 0.05s, border-color 0.2s;
+  text-shadow: 0 0 8px rgba(212, 160, 23, 0.3);
+}
+
+.start-btn:hover {
+  border-color: #e6b422;
+  box-shadow:
+    0 0 20px rgba(139, 0, 0, 0.8),
+    0 0 40px rgba(139, 0, 0, 0.4),
+    inset 0 0 20px rgba(139, 0, 0, 0.2);
+  color: #e6b422;
 }
 
 .start-btn:active {
-  transform: translate(6px, 6px);
+  transform: translate(3px, 3px);
   box-shadow:
-    0 0 0 #0a3f12,
-    0 0 0 #6ee07f,
-    inset -3px -3px 0 #2a8a38,
-    inset 3px 3px 0 #4cd85e;
+    0 0 8px rgba(139, 0, 0, 0.4),
+    inset 0 0 12px rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Generic page ─── */
@@ -128,11 +230,15 @@ body {
   justify-content: center;
   padding: 40px;
   animation: fadeIn 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .xp-panel {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(10, 5, 5, 0.85);
   backdrop-filter: blur(4px);
+  border: 1px solid rgba(212, 160, 23, 0.2);
+  box-shadow: 0 0 20px rgba(139, 0, 0, 0.15), inset 0 0 30px rgba(0, 0, 0, 0.3);
   padding: 48px 60px;
   border-radius: 8px;
   max-width: 750px;
@@ -141,17 +247,46 @@ body {
 
 .xp-title {
   font-size: 28px;
-  color: #ffcc00;
-  text-shadow: 2px 2px 0 #003366;
+  color: #d4a017;
+  text-shadow: 0 0 12px rgba(212, 160, 23, 0.3);
   margin-bottom: 24px;
   letter-spacing: 2px;
 }
 
 .xp-text {
   font-size: 14px;
-  color: #ddd;
+  color: #d4c5a9;
   line-height: 1.8;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+}
+
+/* ─── Cart / Checkout — Dark Fantasy ─── */
+.cart-container,
+.checkout-container {
+  background: rgba(10, 5, 5, 0.85);
+  border: 1px solid rgba(212, 160, 23, 0.2);
+  box-shadow: 0 0 20px rgba(139, 0, 0, 0.15), inset 0 0 30px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 32px;
+}
+
+.cart-item,
+.checkout-item {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 160, 23, 0.1);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.cart-total,
+.checkout-total {
+  color: #d4a017;
+  font-size: 18px;
+  text-shadow: 0 0 8px rgba(212, 160, 23, 0.3);
+  border-top: 1px solid rgba(212, 160, 23, 0.2);
+  padding-top: 16px;
+  margin-top: 16px;
 }
 
 /* ─── Page transitions ─── */
@@ -238,43 +373,56 @@ body {
 
 .product-card .product-name {
   font-size: 14px;
-  color: #fff;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  color: #d4c5a9;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
   text-align: center;
   letter-spacing: 0.5px;
 }
 
 .cart-badge {
-  background: #e53935;
-  color: #fff;
+  background: #8b0000;
+  color: #d4a017;
   font-size: 8px;
   font-weight: bold;
   padding: 3px 6px;
   border-radius: 3px;
   margin-left: 5px;
   vertical-align: super;
-  box-shadow: 0 0 6px rgba(229,57,53,0.6);
+  box-shadow: 0 0 6px rgba(139, 0, 0, 0.6);
+  border: 1px solid rgba(212, 160, 23, 0.3);
 }
 
 .xp-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(5, 2, 2, 0.7);
+  border: 2px solid rgba(212, 160, 23, 0.15);
   padding: 14px 18px;
-  color: #fff;
+  color: #d4c5a9;
   font-family: 'Press Start 2P', monospace;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .xp-input:focus {
-  border-color: #ffcc00;
+  border-color: #d4a017;
+  box-shadow: 0 0 10px rgba(212, 160, 23, 0.2);
 }
 
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(20px) scale(0.9); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Footer — Dark Fantasy ─── */
+.footer {
+  background: #000000;
+  border-top: 2px solid #6b0f0f;
+  padding: 24px;
+  text-align: center;
+  color: rgba(212, 197, 169, 0.4);
+  font-size: 8px;
+  letter-spacing: 1px;
 }
 
 /* ─── Mobile (≤768px) ─── */
@@ -301,7 +449,7 @@ body {
   .app h1 {
     font-size: 24px;
     letter-spacing: 1px;
-    text-shadow: 3px 3px 0 #003366, 5px 5px 0 rgba(0,0,0,0.3);
+    text-shadow: 0 0 12px rgba(212, 160, 23, 0.4), 0 0 24px rgba(139, 0, 0, 0.2);
     line-height: 1.4;
   }
 
