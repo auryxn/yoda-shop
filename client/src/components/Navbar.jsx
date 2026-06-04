@@ -20,28 +20,30 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      {links.map((link) => (
-        <Link
-          key={link.to}
-          to={link.to}
-          className={`nav-link${pathname === link.to ? ' active' : ''}`}
-        >
-          {link.label}
-          {link.to === '/cart' && totalQty > 0 && (
-            <span className="cart-badge">{totalQty}</span>
-          )}
-        </Link>
-      ))}
-      {isAdmin && (
-        <Link
-          to="/admin"
-          className={`nav-link admin-link${pathname === '/admin' ? ' active' : ''}`}
-        >
-          Admin
-        </Link>
-      )}
-      <button className="theme-toggle" onClick={toggle} title="Toggle theme">
-        {theme === 'dark' ? '🖥️' : '🌙'}
+      <div className="navbar-links">
+        {links.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className={`nav-link${pathname === link.to ? ' active' : ''}`}
+          >
+            {link.label}
+            {link.to === '/cart' && totalQty > 0 && (
+              <span className="cart-badge">{totalQty}</span>
+            )}
+          </Link>
+        ))}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className={`nav-link admin-link${pathname === '/admin' ? ' active' : ''}`}
+          >
+            Admin
+          </Link>
+        )}
+      </div>
+      <button className="theme-toggle nav-link" onClick={toggle}>
+        {theme === 'dark' ? '☀ Light' : '🌙 Dark'}
       </button>
     </nav>
   );

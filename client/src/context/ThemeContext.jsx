@@ -10,7 +10,7 @@ export function ThemeProvider({ children }) {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const toggle = () => setTheme(t => (t === 'dark' ? 'xp' : 'dark'));
+  const toggle = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>
