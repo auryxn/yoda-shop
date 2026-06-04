@@ -1,161 +1,343 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0d0d0d;
-  color: #f0f0f0;
-  min-height: 100vh;
+html, body, #root {
+  height: 100%;
 }
 
+body {
+  background: url('/assets/bliss.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Press Start 2P', monospace;
+  color: #fff;
+  image-rendering: pixelated;
+}
+
+/* ─── Navbar ─── */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #ffcc00;
+}
+
+/* ─── Home ─── */
 .app {
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-}
-
-main {
-  flex: 1;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-/* Header */
-.header {
-  background: #1a1a1a;
-  border-bottom: 2px solid #d4a017;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
 }
 
-.header .logo {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #d4a017;
-  text-decoration: none;
-  letter-spacing: 2px;
+.home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.header nav a {
-  color: #ccc;
-  text-decoration: none;
-  margin-left: 1.5rem;
-  font-weight: 500;
-  transition: color 0.2s;
+.home-explode {
+  animation: explodeForward 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-.header nav a:hover {
-  color: #d4a017;
+@keyframes explodeForward {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+    filter: blur(16px);
+  }
 }
 
-/* Hero */
-.hero {
+.app h1 {
+  font-size: 46px;
+  text-shadow: 4px 4px 0 #003366, 6px 6px 0 rgba(0,0,0,0.3);
+  color: #ffcc00;
+  letter-spacing: 3px;
   text-align: center;
-  padding: 4rem 1rem;
+  line-height: 1.6;
 }
 
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+/* ─── Pixel Start Button ─── */
+.start-btn {
+  background: #39b54a;
+  border: none;
+  padding: 24px 54px;
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow:
+    6px 6px 0 #0a3f12,
+    -3px -3px 0 #6ee07f,
+    inset -6px -6px 0 #2a8a38,
+    inset 6px 6px 0 #4cd85e;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  image-rendering: pixelated;
+  transition: transform 0.05s, box-shadow 0.05s;
 }
 
-.hero h1 span {
-  color: #d4a017;
+.start-btn:active {
+  transform: translate(6px, 6px);
+  box-shadow:
+    0 0 0 #0a3f12,
+    0 0 0 #6ee07f,
+    inset -3px -3px 0 #2a8a38,
+    inset 3px 3px 0 #4cd85e;
 }
 
-.hero p {
-  color: #999;
-  font-size: 1.2rem;
-  max-width: 600px;
-  margin: 0 auto 2rem;
-}
-
-.btn {
-  display: inline-block;
-  background: #d4a017;
-  color: #0d0d0d;
-  padding: 0.8rem 2rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 700;
-  transition: background 0.2s, transform 0.2s;
-}
-
-.btn:hover {
-  background: #e5b42a;
-  transform: translateY(-2px);
-}
-
-/* Products grid */
-.products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 2rem 0;
-}
-
-.product-card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.product-card:hover {
-  border-color: #d4a017;
-  transform: translateY(-4px);
-}
-
-.product-card .image {
-  height: 200px;
-  background: #2a2a2a;
+/* ─── Generic page ─── */
+.xp-page {
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #555;
-  font-size: 0.9rem;
+  padding: 40px;
+  animation: fadeIn 0.3s ease;
 }
 
-.product-card .info {
-  padding: 1rem;
+.xp-panel {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  padding: 48px 60px;
+  border-radius: 8px;
+  max-width: 750px;
+  text-align: center;
 }
 
-.product-card .info h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
+.xp-title {
+  font-size: 28px;
+  color: #ffcc00;
+  text-shadow: 2px 2px 0 #003366;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
 }
 
-.product-card .info .price {
-  color: #d4a017;
-  font-size: 1.3rem;
-  font-weight: 700;
+.xp-text {
+  font-size: 14px;
+  color: #ddd;
+  line-height: 1.8;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
 }
 
-.product-card .info .btn {
-  margin-top: 1rem;
+/* ─── Page transitions ─── */
+.page-transition {
+  height: 100%;
   width: 100%;
-  text-align: center;
-  padding: 0.6rem;
 }
 
-/* Footer */
-.footer {
-  background: #1a1a1a;
-  border-top: 1px solid #333;
-  text-align: center;
-  padding: 1.5rem;
-  color: #666;
-  font-size: 0.9rem;
+.fadeIn {
+  animation: pageIn 0.55s ease forwards;
 }
 
-.footer span {
-  color: #d4a017;
+.fadeOut {
+  animation: pageOut 0.4s ease forwards;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pageOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-14px) scale(0.95); }
+}
+
+/* ─── Catalog ─── */
+
+.catalog-screen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 80px 40px 40px;
+  animation: catalogAppear 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes catalogAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-12deg);
+    filter: blur(8px) brightness(3);
+  }
+  35% {
+    transform: scale(1.15) rotate(3deg);
+    filter: blur(0) brightness(1.4);
+  }
+  65% {
+    transform: scale(0.93) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: blur(0) brightness(1);
+  }
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.product-card:hover {
+  transform: scale(1.06);
+  filter: brightness(1.1);
+}
+
+.product-card:active {
+  transform: scale(0.95);
+}
+
+.product-card img {
+  display: block;
+  width: 390px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.product-card .product-name {
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.cart-badge {
+  background: #e53935;
+  color: #fff;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 3px;
+  margin-left: 5px;
+  vertical-align: super;
+  box-shadow: 0 0 6px rgba(229,57,53,0.6);
+}
+
+.xp-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 18px;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.xp-input:focus {
+  border-color: #ffcc00;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Mobile (≤768px) ─── */
+@media (max-width: 768px) {
+  .navbar {
+    gap: 10px;
+    padding: 10px 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+  }
+  .navbar::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-link {
+    font-size: 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0 6px;
+  }
+
+  .app h1 {
+    font-size: 24px;
+    letter-spacing: 1px;
+    text-shadow: 3px 3px 0 #003366, 5px 5px 0 rgba(0,0,0,0.3);
+    line-height: 1.4;
+  }
+
+  .start-btn {
+    padding: 18px 30px;
+    font-size: 16px;
+    min-width: 200px;
+  }
+
+  .xp-page {
+    padding: 16px;
+  }
+
+  .xp-panel {
+    padding: 24px 16px;
+    max-width: 100%;
+    border-radius: 6px;
+  }
+
+  .xp-title {
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  .xp-text {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+
+  .xp-input {
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+
+  /* Footer колонкой */
+  .home-content {
+    gap: 16px;
+  }
 }
